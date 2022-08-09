@@ -80,6 +80,13 @@ Lemma subtype_soundness : forall (t1:SemType) (t2:SemType) (v1:Value),
 Proof.
 Admitted.
 
+(* ==================== Completeness ==================== *)
+
+Lemma subtype_soundness : forall (t1:SemType) (t2:SemType) (v1:Value),
+    (v1 ∈ t1) -> (v1 ∈ t2) -> (t1 <: t2).
+Proof.
+Admitted.
+
 
 
 
