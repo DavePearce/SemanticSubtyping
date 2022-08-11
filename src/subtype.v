@@ -58,6 +58,28 @@ Proof.
   reflexivity.
 Qed.
 
+Lemma memberof_int : forall (n:nat) (t1:SemType),
+    (V_Int(n) ∈ t1) -> (t1 = T_Int).
+Proof.
+  intros n t1 eq.
+  destruct t1.
+  -- reflexivity.
+  -- discriminate.
+Qed.
+
+Lemma memberof_pair : forall (v1:Value) (v2:Value) (t3:SemType),
+    ({v1,v2} ∈ t3) -> exists (t1:SemType) (t2:SemType), (t3 = t1×t2 /\ v1 ∈ t1 /\ v2 ∈ t2).
+Proof.
+  intros v1 v2 t3 I1.
+  destruct t3.
+  - discriminate.
+  - eexists.
+    eexists.
+    split.
+    -- reflexivity.
+    -- admit.  
+Admitted.
+
 (* ==================== Subtyping ==================== *)
 
 Fixpoint bsubtype_of (t1:SemType) (t2:SemType) : bool :=
@@ -73,13 +95,34 @@ Definition subtype_of (t1:SemType) (t2:SemType) : Prop :=
 Notation "x <: y" := (subtype_of x y)
                        (at level 50).
 
+Lemma subtypeof_int : forall (t2:SemType),
+    (T_Int <: t2) -> (t2 = T_Int).
+Proof.
+  intros t1 S1.
+  unfold subtype_of in S1.
+  unfold bsubtype_of in S1.
+  destruct t1.
+  -- reflexivity.
+  -- discriminate.
+Qed.
+
 (* ==================== Soundness ==================== *)
 
 Lemma subtype_soundness : forall (t1:SemType) (t2:SemType) (v1:Value),
     (t1 <: t2) -> (v1 ∈ t1) -> (v1 ∈ t2).
 Proof.
-Admitted.
-
+  intros t1 t2 v1 S1 I1.
+  induction v1.
+  -- apply memberof_int in I1.
+     rewrite -> I1 in S1.
+     apply subtypeof_int in S1.
+     rewrite -> S1.
+     unfold member_of.
+     unfold bmember_of.
+     reflexivity.
+  -- apply memberof_pair in I1.
+  Admitted.
+  
 (* ==================== Completeness ==================== *)
 
 Lemma subtype_soundness : forall (t1:SemType) (t2:SemType) (v1:Value),
