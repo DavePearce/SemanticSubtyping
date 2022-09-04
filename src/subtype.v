@@ -77,9 +77,14 @@ Proof.
     eexists.
     split.
     -- reflexivity.
-    -- admit.  
-Admitted.
-
+    -- unfold member_of in I1.
+       unfold bmember_of in I1.
+       fold bmember_of in I1.
+       unfold member_of.
+       apply andb_true_iff in I1.
+       apply I1.
+Qed.
+       
 (* ==================== Subtyping ==================== *)
 
 Fixpoint bsubtype_of (t1:SemType) (t2:SemType) : bool :=
@@ -113,19 +118,25 @@ Lemma subtype_soundness : forall (t1:SemType) (t2:SemType) (v1:Value),
 Proof.
   intros t1 t2 v1 S1 I1.
   induction v1.
-  -- apply memberof_int in I1.
-     rewrite -> I1 in S1.
-     apply subtypeof_int in S1.
-     rewrite -> S1.
-     unfold member_of.
-     unfold bmember_of.
-     reflexivity.
-  -- apply memberof_pair in I1.
+  - apply memberof_int in I1.
+    rewrite -> I1 in S1.
+    apply subtypeof_int in S1.
+    rewrite -> S1.
+    unfold member_of.
+    unfold bmember_of.
+    reflexivity.
+  - apply memberof_pair in I1.    
+    unfold member_of.
+    unfold bmember_of.
+    fold bmember_of.
+    destruct t2 as [|t2_1 t2_2].
+    -- admit.
+    -- apply andb_true_iff.
   Admitted.
   
 (* ==================== Completeness ==================== *)
 
-Lemma subtype_soundness : forall (t1:SemType) (t2:SemType) (v1:Value),
+Lemma subtype_completeness : forall (t1:SemType) (t2:SemType) (v1:Value),
     (v1 ∈ t1) -> (v1 ∈ t2) -> (t1 <: t2).
 Proof.
 Admitted.
