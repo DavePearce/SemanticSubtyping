@@ -100,6 +100,7 @@ Definition subtype_of (t1:SemType) (t2:SemType) : Prop :=
 Notation "x <: y" := (subtype_of x y)
                        (at level 50).
 
+(* Subtyping an int implies an int (for now) *)
 Lemma subtypeof_int : forall (t2:SemType),
     (T_Int <: t2) -> (t2 = T_Int).
 Proof.
@@ -111,28 +112,52 @@ Proof.
   -- discriminate.
 Qed.
 
+(* Subtyping of pairs implies subtyping of their elements *)
+Lemma subtypeof_pair1 : forall (t1:SemType) (t2:SemType) (t3:SemType) (t4:SemType),
+    (t1×t2 <: t3×t4) -> (t1 <: t3) /\ (t2 <: t4).
+Proof.
+  intros t1 t2 t3 t4 S1.
+  unfold subtype_of in S1.
+  unfold bsubtype_of in S1.
+  fold bsubtype_of in S1.  
+  apply andb_true_iff in S1.
+  destruct S1 as [S2 S3].
+  split.
+  - apply S2.
+  - apply S3.
+Qed.
+  
+(* Subtyping a pair requires a pair *)
+Lemma subtypeof_pair2 : forall (t1:SemType) (t2:SemType) (t3:SemType),
+    (t1×t2 <:t3) -> exists (t4:SemType) (t5:SemType), t3 = t4×t5.
+Proof.
+  intros t1 t2 t3 S1.
+  unfold subtype_of in S1.
+  unfold bsubtype_of in S1.
+  fold bsubtype_of in S1.
+  destruct t3.
+  - discriminate.
+  - eexists.
+    eexists.
+    reflexivity.
+Qed.
+
 (* ==================== Soundness ==================== *)
 
 Lemma subtype_soundness : forall (t1:SemType) (t2:SemType) (v1:Value),
     (t1 <: t2) -> (v1 ∈ t1) -> (v1 ∈ t2).
 Proof.
   intros t1 t2 v1 S1 I1.
-  induction v1.
-  - apply memberof_int in I1.
-    rewrite -> I1 in S1.
-    apply subtypeof_int in S1.
-    rewrite -> S1.
-    unfold member_of.
-    unfold bmember_of.
-    reflexivity.
-  - apply memberof_pair in I1.    
-    unfold member_of.
-    unfold bmember_of.
-    fold bmember_of.
-    destruct t2 as [|t2_1 t2_2].
-    -- admit.
-    -- apply andb_true_iff.
-  Admitted.
+  destruct v1.
+  -- apply memberof_int in I1.
+     rewrite -> I1 in S1.
+     apply subtypeof_int in S1.
+     rewrite -> S1.
+     unfold member_of.
+     unfold bmember_of.
+     reflexivity.
+  -- admit.
+Admitted.
   
 (* ==================== Completeness ==================== *)
 
